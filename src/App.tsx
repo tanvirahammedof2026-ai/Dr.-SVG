@@ -315,10 +315,12 @@ export default function App() {
 
     const zip = asZip ? new JSZip() : null;
     const lastTick = { current: 0 };
+    let processedCount = 0;
+    const totalCount = visibleAssets.length;
 
     try {
       const currentBatch = [...visibleAssets];
-      const concurrencyLimit = 40; 
+      const concurrencyLimit = 10; 
       
       for (let i = 0; i < currentBatch.length; i += concurrencyLimit) {
         if (abortRef.current) break;
@@ -363,18 +365,19 @@ export default function App() {
             }
 
             setCompletedIds(prev => new Set(prev).add(item.id));
+            
+            // Per-file progress update
+            processedCount++;
+            const nextProgress = Math.round((processedCount / totalCount) * 100);
+            setDownloadProgress(nextProgress);
+            
+            if (nextProgress >= 25 && lastTick.current < 25) { triggerSound('tick'); lastTick.current = 25; }
+            if (nextProgress >= 50 && lastTick.current < 50) { triggerSound('tick'); lastTick.current = 50; }
+            if (nextProgress >= 75 && lastTick.current < 75) { triggerSound('tick'); lastTick.current = 75; }
           } catch (err) {
             console.error(`Unit processing failed [${item.name}]:`, err);
           }
         }));
-
-        const nextProgress = Math.round(((i + chunk.length) / currentBatch.length) * 100);
-        setDownloadProgress(nextProgress);
-        
-        // Progress Ticks at 25% increments
-        if (nextProgress >= 25 && lastTick.current < 25) { triggerSound('tick'); lastTick.current = 25; }
-        if (nextProgress >= 50 && lastTick.current < 50) { triggerSound('tick'); lastTick.current = 50; }
-        if (nextProgress >= 75 && lastTick.current < 75) { triggerSound('tick'); lastTick.current = 75; }
       }
 
       if (!abortRef.current) {
@@ -955,46 +958,44 @@ export default function App() {
                          <span className="text-[9px] font-black uppercase tracking-widest sm:hidden">Abort</span>
                        </motion.button>
 
-                       {/* Charging Battery Bar Container */}
-                       <div className="flex-1 h-8 sm:h-10 bg-slate-200/40 rounded-xl relative overflow-hidden border border-slate-300/50 flex items-center px-4">
-                          {/* Liquid Fill */}
+                       {/* Batch Progress Tracker */}
+                       <div className="flex-1 h-8 sm:h-10 bg-slate-900/10 rounded-xl relative overflow-hidden border border-slate-300/50 flex items-center px-4">
+                          {/* Neon Liquid Fill */}
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${downloadProgress}%` }}
-                            className={`absolute inset-y-0 left-0 transition-colors duration-500 ${downloadProgress === 100 ? 'bg-green-500 shadow-[0_0_20px_rgba(34,197,94,0.4)]' : 'bg-brand shadow-[0_0_30px_rgba(37,99,235,0.6)]'}`}
+                            transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+                            className={`absolute inset-y-0 left-0 transition-colors duration-500 ${downloadProgress === 100 ? 'bg-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.5)]' : 'bg-[#00f2ff] shadow-[0_0_25px_rgba(0,242,255,0.6)]'}`}
                           >
-                            {/* Energy Wave Effect */}
                             <motion.div 
                               animate={{ x: ['-200%', '200%'] }}
-                              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                              transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
                               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-25deg]"
                             />
-                            {/* Tip Shimmer */}
                             <div className="absolute right-0 top-0 bottom-0 w-3 bg-white/30 blur-[4px]" />
                           </motion.div>
 
-                          {/* Bolt Icon & Percentage */}
                           <div className="relative z-10 flex items-center justify-between w-full">
                             <div className="flex items-center gap-2">
                               <motion.div
                                 animate={{ 
-                                  scale: downloadProgress === 100 ? 1 : [1, 1.2, 1],
-                                  filter: downloadProgress === 100 ? 'none' : ['drop-shadow(0 0 0px #fff)', 'drop-shadow(0 0 10px #60a5fa)', 'drop-shadow(0 0 0px #fff)']
+                                  scale: downloadProgress === 100 ? 1 : [1, 1.3, 1],
+                                  filter: downloadProgress === 100 ? 'none' : ['drop-shadow(0 0 10px #00f2ff)']
                                 }}
-                                transition={{ duration: 1, repeat: Infinity }}
+                                transition={{ duration: 0.8, repeat: Infinity }}
                                 className="text-white flex items-center justify-center"
                               >
                                 {downloadProgress === 100 ? <CheckCircle2 size={16} strokeWidth={3} /> : <Zap size={14} fill="currentColor" />}
                               </motion.div>
                               <span className="text-[10px] font-black text-white uppercase tracking-widest drop-shadow-md">
-                                {downloadProgress === 100 ? 'SYNTH_COMPLETE' : 'SYNTHESIZING_BLOCKS'}
+                                {downloadProgress === 100 ? 'TASK_FULFILLED' : 'BATCH_PROGRESS'}
                               </span>
                             </div>
                             
                             <div className="flex items-center gap-1">
                               <motion.span 
                                 key={downloadProgress}
-                                initial={{ y: 10, opacity: 0 }}
+                                initial={{ y: 8, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 className="text-base font-mono font-black text-white drop-shadow-md"
                               >
