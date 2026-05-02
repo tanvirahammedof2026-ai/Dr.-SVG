@@ -5,38 +5,38 @@
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   
-  --color-brand: #06b6d4;
-  --color-brand-muted: #164e63;
-  --color-bg-main: #020617;
-  --color-bg-sub: #0f172a;
-  --color-border-sub: #1e293b;
+  --color-brand: #2563eb;
+  --color-brand-muted: #dbeafe;
+  --color-bg-main: #ffffff;
+  --color-bg-sub: #f8fafc;
+  --color-border-sub: #e2e8f0;
 }
 
 @layer base {
   * {
-    @apply border-zinc-800/60;
+    @apply border-slate-200;
   }
   body {
-    @apply bg-bg-main text-slate-400;
+    @apply bg-bg-main text-slate-600;
   }
 }
 
 @utility custom-scrollbar {
   &::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
   }
   &::-webkit-scrollbar-track {
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    @apply bg-zinc-800 rounded-full;
+    @apply bg-slate-200 rounded-full;
   }
   &::-webkit-scrollbar-thumb:hover {
-    @apply bg-brand/40;
+    @apply bg-brand/30;
   }
 }
 
 @utility glass-panel {
-  @apply bg-slate-900/40 backdrop-blur-xl border border-white/5 shadow-2xl;
+  @apply bg-white/70 backdrop-blur-xl border border-slate-200 shadow-xl;
 }

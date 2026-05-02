@@ -205,7 +205,7 @@ export default function App() {
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#06b6d4', '#ffffff', '#22d3ee']
+        colors: ['#2563eb', '#ffffff', '#60a5fa']
       });
     }
   }, [textSvgs.length, uploadedFiles.length, isProcessing]);
@@ -374,7 +374,7 @@ export default function App() {
           particleCount: 200,
           spread: 120,
           origin: { y: 0.5 },
-          colors: ['#06b6d4', '#ffffff', '#22d3ee', '#083344']
+          colors: ['#2563eb', '#ffffff', '#60a5fa', '#1d4ed8']
         });
       }
     } catch (error) {
@@ -394,7 +394,7 @@ export default function App() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
-      className="flex flex-col min-h-screen bg-bg-main text-slate-400 font-sans selection:bg-brand/30 selection:text-white"
+      className="flex flex-col min-h-screen bg-bg-main text-slate-600 font-sans selection:bg-brand/10 selection:text-brand"
     >
       {/* Global Status HUD */}
       <AnimatePresence>
@@ -403,18 +403,18 @@ export default function App() {
             initial={{ y: 50, opacity: 0, x: '-50%' }}
             animate={{ y: 0, opacity: 1, x: '-50%' }}
             exit={{ y: 50, opacity: 0, x: '-50%' }}
-            className="fixed bottom-10 left-1/2 -translate-x-1/2 h-14 w-[95%] max-w-md bg-zinc-950/80 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-[0_30px_90px_rgba(0,0,0,1),0_0_20px_rgba(6,182,212,0.1)] z-[200] flex items-center px-6 gap-5 overflow-hidden"
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 h-14 w-[95%] max-w-md bg-white/90 backdrop-blur-3xl border border-brand/20 rounded-2xl shadow-[0_30px_60px_rgba(37,99,235,0.1),0_0_20px_rgba(37,99,235,0.05)] z-[200] flex items-center px-6 gap-5 overflow-hidden"
           >
-            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand/50 to-transparent" />
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand to-transparent" />
             
             <div className="flex flex-col shrink-0 min-w-[60px]">
                <span className="text-[7px] font-black text-brand uppercase tracking-[0.3em] leading-none mb-1.5 animate-pulse">Processing</span>
-               <span className="text-[12px] text-white font-mono font-bold leading-none">{downloadProgress}%</span>
+               <span className="text-[12px] text-slate-900 font-mono font-bold leading-none">{downloadProgress}%</span>
             </div>
             
-            <div className="flex-1 h-1.5 bg-zinc-900/50 rounded-full overflow-hidden relative border border-white/5">
+            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden relative border border-slate-200">
               <motion.div 
-                className="absolute inset-y-0 left-0 bg-brand shadow-[0_0_15px_rgba(6,182,212,0.8)]"
+                className="absolute inset-y-0 left-0 bg-brand shadow-[0_0_15px_rgba(37,99,235,0.4)]"
                 initial={{ width: 0 }}
                 animate={{ width: `${downloadProgress}%` }}
                 transition={{ duration: 0.1 }}
@@ -450,14 +450,14 @@ export default function App() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="w-full max-w-sm bg-zinc-950 border border-brand/30 rounded-3xl p-6 shadow-2xl relative overflow-hidden"
+              className="w-full max-w-sm bg-white border border-brand/20 rounded-3xl p-6 shadow-2xl relative overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent opacity-50" />
               
               <div className="flex items-center justify-between mb-8">
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black text-brand uppercase tracking-widest">Dimension Matrix</span>
-                  <span className="text-[8px] text-zinc-500 font-bold uppercase">Manual Resolution Override</span>
+                  <span className="text-[8px] text-slate-400 font-bold uppercase">Manual Resolution Override</span>
                 </div>
                 <motion.button 
                   whileHover={{ rotate: 90, scale: 1.1 }}
@@ -466,7 +466,7 @@ export default function App() {
                     sounds.play('click');
                     setIsResizeOpen(false);
                   }}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-zinc-500 hover:text-white transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-slate-400 hover:text-brand transition-colors"
                 >
                   <X size={16} />
                 </motion.button>
@@ -475,15 +475,15 @@ export default function App() {
               <div className="space-y-6">
                 {/* Custom Resolution */}
                 <div className="space-y-3">
-                  <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Pixel Density</label>
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pixel Density</label>
                   <div className="flex items-center gap-3">
                     <div className="flex-1 space-y-1">
-                      <span className="text-[8px] text-zinc-600 font-bold uppercase ml-1">Width</span>
+                      <span className="text-[8px] text-slate-400 font-bold uppercase ml-1">Width</span>
                       <input 
                         type="number" 
                         value={resolution.width}
                         onChange={(e) => updateWidth(parseInt(e.target.value) || 0)}
-                        className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-xs text-white focus:border-brand outline-none transition-all font-mono"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 focus:border-brand outline-none transition-all font-mono"
                       />
                     </div>
                     <div className="pt-6 flex flex-col items-center gap-1">
@@ -494,18 +494,18 @@ export default function App() {
                           sounds.play('click');
                           setIsLocked(!isLocked);
                         }}
-                        className={`p-2 rounded-lg transition-colors ${isLocked ? 'text-brand bg-brand/10' : 'text-zinc-600 bg-zinc-900'}`}
+                        className={`p-2 rounded-lg transition-colors ${isLocked ? 'text-brand bg-brand/10' : 'text-slate-300 bg-slate-100'}`}
                       >
                         {isLocked ? <LinkIcon size={14} /> : <Link2Off size={14} />}
                       </motion.button>
                     </div>
                     <div className="flex-1 space-y-1">
-                      <span className="text-[8px] text-zinc-600 font-bold uppercase ml-1">Height</span>
+                      <span className="text-[8px] text-slate-400 font-bold uppercase ml-1">Height</span>
                       <input 
                         type="number" 
                         value={resolution.height}
                         onChange={(e) => updateHeight(parseInt(e.target.value) || 0)}
-                        className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-xs text-white focus:border-brand outline-none transition-all font-mono"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 focus:border-brand outline-none transition-all font-mono"
                       />
                     </div>
                   </div>
@@ -514,10 +514,10 @@ export default function App() {
                 {/* Mass Scale */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Target Mass Scale</label>
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Target Mass Scale</label>
                     <motion.button 
                       onClick={() => setUseTargetSize(!useTargetSize)}
-                      className={`text-[9px] font-black px-2 py-0.5 rounded uppercase ${useTargetSize ? 'bg-brand/20 text-brand' : 'bg-zinc-900 text-zinc-600'}`}
+                      className={`text-[9px] font-black px-2 py-0.5 rounded uppercase ${useTargetSize ? 'bg-brand/10 text-brand' : 'bg-slate-100 text-slate-400'}`}
                     >
                       {useTargetSize ? 'Active' : 'Bypass'}
                     </motion.button>
@@ -530,7 +530,7 @@ export default function App() {
                       step="0.1"
                       value={targetSize || 4}
                       onChange={(e) => setTargetSize(parseFloat(e.target.value))}
-                      className="w-full h-1 bg-zinc-900 rounded-full appearance-none accent-brand cursor-pointer"
+                      className="w-full h-1 bg-slate-100 rounded-full appearance-none accent-brand cursor-pointer"
                     />
                     <div className="flex flex-wrap gap-2">
                       {[1, 2, 5, 10].map(s => (
@@ -539,7 +539,7 @@ export default function App() {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setTargetSize(s)}
-                          className={`flex-1 py-1.5 rounded-lg border text-[9px] font-black uppercase transition-all ${targetSize === s ? 'bg-brand/10 border-brand/50 text-brand' : 'bg-black/40 border-white/5 text-zinc-600'}`}
+                          className={`flex-1 py-1.5 rounded-lg border text-[9px] font-black uppercase transition-all ${targetSize === s ? 'bg-brand/10 border-brand/30 text-brand' : 'bg-white border-slate-100 text-slate-400'}`}
                         >
                           {s}MB
                         </motion.button>
@@ -550,13 +550,13 @@ export default function App() {
               </div>
 
               <motion.button 
-                whileHover={{ scale: 1.02, backgroundColor: 'rgba(6,182,212,1)', color: '#000' }}
+                whileHover={{ scale: 1.02, backgroundColor: '#1d4ed8' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   sounds.play('success');
                   setIsResizeOpen(false);
                 }}
-                className="w-full mt-8 py-4 bg-zinc-900 border border-brand/40 text-brand font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all"
+                className="w-full mt-8 py-4 bg-brand text-white font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all shadow-lg shadow-brand/20"
               >
                 Engage Matrix Settings
               </motion.button>
@@ -572,17 +572,17 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/90"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-3xl bg-slate-900/40"
           >
             <motion.div 
               initial={{ scale: 0.9, y: 30, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.9, y: 30, opacity: 0 }}
-              className="glass-panel p-8 rounded-[2rem] max-w-sm w-full text-center shadow-[0_0_100px_rgba(6,182,212,0.15)] ring-1 ring-white/10 relative overflow-hidden"
+              className="glass-panel p-8 rounded-[2rem] max-w-sm w-full text-center shadow-[0_0_100px_rgba(37,99,235,0.1)] ring-1 ring-slate-200/50 relative overflow-hidden"
             >
               <div className="absolute top-4 left-4 flex flex-col gap-0.5 items-start">
                 <span className="text-[8px] font-black text-brand italic uppercase">CONVERTER LOADED</span>
-                <span className="text-[7px] font-bold text-zinc-600 tracking-[0.2em]">{appStatus}</span>
+                <span className="text-[7px] font-bold text-slate-400 tracking-[0.2em]">{appStatus}</span>
               </div>
               
               <div className="w-16 h-16 bg-brand/10 text-brand rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 shadow-inner shadow-brand/20">
@@ -594,7 +594,7 @@ export default function App() {
                   <Check size={32} strokeWidth={3} />
                 </motion.div>
               </div>
-              <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">System Purge Complete</h3>
+              <h3 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">System Purge Complete</h3>
               <p className="text-slate-500 text-[12px] mb-8 font-medium leading-relaxed italic">The synthetic rasterization of your data units has reached equilibrium. All assets exported.</p>
               
               <div className="flex flex-col gap-2">
@@ -606,14 +606,14 @@ export default function App() {
                       sounds.play('success');
                       saveAs(zipBlob, `dr_svg_batch_${Date.now()}.zip`);
                     }}
-                    className="w-full py-3 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-[10px]"
+                    className="w-full py-3 bg-slate-50 border border-slate-200 text-slate-900 font-black uppercase tracking-widest rounded-xl hover:bg-slate-100 transition-all flex items-center justify-center gap-2 text-[10px]"
                   >
                     <Archive size={14} />
                     Download ZIP Again
                   </motion.button>
                 )}
                 <motion.button 
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ scale: 1.02, backgroundColor: '#1d4ed8' }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     sounds.play('click');
@@ -623,7 +623,7 @@ export default function App() {
                     setCompletedIds(new Set());
                     setZipBlob(null);
                   }}
-                  className="w-full py-4 bg-brand text-black font-black uppercase tracking-widest rounded-xl hover:bg-cyan-400 shadow-xl shadow-brand/20 text-[11px]"
+                  className="w-full py-4 bg-brand text-white font-black uppercase tracking-widest rounded-xl shadow-xl shadow-brand/20 text-[11px]"
                 >
                   Reset Workload
                 </motion.button>
@@ -634,28 +634,28 @@ export default function App() {
       </AnimatePresence>
 
       {/* Header */}
-      <nav className="h-14 border-b border-white/5 flex items-center justify-between px-6 sm:px-10 bg-bg-main/80 backdrop-blur-xl sticky top-0 z-50">
+      <nav className="h-14 border-b border-slate-200 flex items-center justify-between px-6 sm:px-10 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex items-center gap-4">
           <motion.div 
             whileHover={{ rotate: 15, scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => sounds.play('hover')}
-            className="w-8 h-8 bg-brand rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] shrink-0 cursor-pointer"
+            className="w-8 h-8 bg-brand rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.2)] shrink-0 cursor-pointer"
           >
-            <Stethoscope size={18} className="text-black" strokeWidth={2.5} />
+            <Stethoscope size={18} className="text-white" strokeWidth={2.5} />
           </motion.div>
           <div className="flex flex-col leading-none">
-            <span className="text-lg font-black tracking-tighter text-white uppercase italic">DR. <span className="text-brand">SVG</span></span>
-            <span className="text-[8px] text-zinc-600 font-bold tracking-[0.3em] uppercase mt-1">Unified Synthesis Hub</span>
+            <span className="text-lg font-black tracking-tighter text-slate-900 uppercase italic">DR. <span className="text-brand">SVG</span></span>
+            <span className="text-[8px] text-slate-400 font-bold tracking-[0.3em] uppercase mt-1">Unified Synthesis Hub</span>
           </div>
         </div>
         
         <div className="flex items-center gap-4 sm:gap-6">
           {user ? (
-            <div className="flex items-center gap-3 sm:gap-4 pl-4 border-l border-white/5">
+            <div className="flex items-center gap-3 sm:gap-4 pl-4 border-l border-slate-200">
               <div className="flex flex-col items-end leading-none hidden sm:flex">
-                <span className="text-[10px] font-black text-white uppercase tracking-tight">{user.displayName}</span>
-                <span className="text-[7px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Verified Operator</span>
+                <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{user.displayName}</span>
+                <span className="text-[7px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Verified Operator</span>
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -664,11 +664,11 @@ export default function App() {
                   sounds.play('click');
                   logout();
                 }}
-                className="w-8 h-8 rounded-full border border-white/10 overflow-hidden relative group cursor-pointer"
+                className="w-8 h-8 rounded-full border border-slate-200 overflow-hidden relative group cursor-pointer"
               >
                 <img src={user.photoURL || ''} alt="Profile" className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <LogOut size={12} className="text-white" />
+                  <LogOut size={12} className="text-slate-900" />
                 </div>
               </motion.button>
             </div>
@@ -680,30 +680,30 @@ export default function App() {
                 sounds.play('click');
                 signInWithGoogle();
               }}
-              className="px-4 py-1.5 bg-brand text-black text-[10px] font-black uppercase tracking-widest rounded-full hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] flex items-center gap-2"
+              className="px-4 py-1.5 bg-brand text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center gap-2"
             >
               <LogIn size={12} strokeWidth={3} />
               <span>Sign In</span>
             </motion.button>
           )}
 
-          <div className="hidden md:flex items-center gap-3 px-3 py-1.5 bg-white/5 rounded-full border border-white/5">
+          <div className="hidden md:flex items-center gap-3 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100">
             <div className="flex items-center gap-2">
-              <div className={`w-1.5 h-1.5 rounded-full ${isProcessing ? 'bg-orange-500 animate-pulse' : 'bg-brand'} shadow-[0_0_8px_rgba(6,182,212,0.5)]`} />
+              <div className={`w-1.5 h-1.5 rounded-full ${isProcessing ? 'bg-orange-500 animate-pulse' : 'bg-brand'} shadow-[0_0_8px_rgba(37,99,235,0.3)]`} />
               <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">
                 {isProcessing ? 'Synthesis engaged' : 'Engine Ready'}
               </span>
             </div>
           </div>
-          <span className="px-2 py-1 rounded bg-zinc-900 border border-white/5 text-[7px] text-zinc-600 tracking-widest font-black hidden sm:block uppercase">v2.5_QUANTUM</span>
+          <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-[7px] text-slate-400 tracking-widest font-black hidden sm:block uppercase">v2.5_QUANTUM</span>
         </div>
       </nav>
 
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* Main Input Section */}
-        <section className="w-full lg:w-[360px] border-b lg:border-b-0 lg:border-r border-white/5 bg-bg-sub/30 flex flex-col h-[300px] lg:h-auto overflow-hidden">
-          <div className="p-4 px-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
-            <h2 className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] flex items-center gap-2">
+        <section className="w-full lg:w-[360px] border-b lg:border-b-0 lg:border-r border-slate-200 bg-bg-sub/30 flex flex-col h-[300px] lg:h-auto overflow-hidden">
+          <div className="p-4 px-6 border-b border-slate-200 flex items-center justify-between bg-slate-100/10">
+            <h2 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
               <Plus size={10} className="text-brand" />
               Source Stream
             </h2>
@@ -711,7 +711,7 @@ export default function App() {
               <motion.div 
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
-                className="text-[8px] font-black text-brand bg-brand/5 border border-brand/20 px-2 py-0.5 rounded-full uppercase italic"
+                className="text-[8px] font-black text-brand bg-brand/5 border border-brand/10 px-2 py-0.5 rounded-full uppercase italic"
               >
                 {visibleAssets.length} Units
               </motion.div>
@@ -721,18 +721,18 @@ export default function App() {
           <div className="flex-1 flex flex-col min-h-0">
             <div className="p-4">
                <motion.button 
-                whileHover={{ scale: 1.02, borderColor: 'rgba(6,182,212,0.4)', backgroundColor: 'rgba(6,182,212,0.02)' }}
+                whileHover={{ scale: 1.02, borderColor: 'rgba(37,99,235,0.4)', backgroundColor: 'rgba(37,99,235,0.02)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   sounds.play('click');
                   fileInputRef.current?.click();
                 }}
-                className="w-full py-6 bg-zinc-950/40 border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 group relative overflow-hidden transition-all shadow-inner"
+                className="w-full py-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-2 group relative overflow-hidden transition-all shadow-inner"
                >
-                 <Upload size={18} className="text-zinc-600 transition-transform group-hover:-translate-y-0.5 group-hover:text-brand" />
+                 <Upload size={18} className="text-slate-400 transition-transform group-hover:-translate-y-0.5 group-hover:text-brand" />
                  <div className="flex flex-col items-center">
-                    <span className="text-[10px] font-black uppercase text-slate-400 group-hover:text-white mb-0.5">Ingest Local Assets</span>
-                    <span className="text-[7px] text-zinc-700 uppercase font-black tracking-[0.3em]">LOAD STREAM</span>
+                    <span className="text-[10px] font-black uppercase text-slate-500 group-hover:text-slate-700 mb-0.5">Ingest Local Assets</span>
+                    <span className="text-[7px] text-slate-300 uppercase font-black tracking-[0.3em]">LOAD STREAM</span>
                  </div>
                </motion.button>
                <input 
@@ -745,13 +745,13 @@ export default function App() {
                />
             </div>
             <div className="px-4 pb-4 flex-1 flex flex-col relative overflow-hidden">
-              <div className="text-[8px] font-black text-zinc-700 uppercase tracking-[0.3em] mb-1.5 ml-1">TERMINAL: RAW_BUFFER</div>
+              <div className="text-[8px] font-black text-slate-300 uppercase tracking-[0.3em] mb-1.5 ml-1">TERMINAL: RAW_BUFFER</div>
               <textarea
                 value={rawInput}
                 onChange={(e) => setRawInput(e.target.value)}
                 placeholder="Paste code streams here..."
                 spellCheck={false}
-                className="flex-1 w-full bg-black/60 rounded-xl border border-white/5 p-4 text-[10px] font-mono text-zinc-600 focus:outline-none focus:ring-1 focus:ring-brand/20 resize-none transition-all placeholder:text-zinc-800 custom-scrollbar leading-relaxed"
+                className="flex-1 w-full bg-slate-50 rounded-xl border border-slate-200 p-4 text-[10px] font-mono text-slate-700 focus:outline-none focus:ring-1 focus:ring-brand/20 resize-none transition-all placeholder:text-slate-300 custom-scrollbar leading-relaxed"
               />
             </div>
           </div>
@@ -761,13 +761,13 @@ export default function App() {
         <section className="flex-1 flex flex-col p-4 sm:p-8 bg-bg-main overflow-hidden relative">
           <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-4 mb-6">
             <div className="flex flex-col">
-              <h2 className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mb-1.5 flex items-center gap-2.5">
+              <h2 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] mb-1.5 flex items-center gap-2.5">
                 <ImageIcon size={12} className="text-brand" />
                 Synthesis Surface
               </h2>
-              <p className="text-[11px] text-zinc-600 font-bold tracking-tight italic">Localized assets ready for conversion.</p>
+              <p className="text-[11px] text-slate-400 font-bold tracking-tight italic">Localized assets ready for conversion.</p>
             </div>
-            <div className="flex bg-black/40 rounded-lg p-0.5 border border-white/5 shadow-inner ring-1 ring-white/5">
+            <div className="flex bg-slate-50 rounded-lg p-0.5 border border-slate-200 shadow-inner">
                <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -775,7 +775,7 @@ export default function App() {
                   sounds.play('click');
                   setViewMode('grid');
                 }}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all ${viewMode === 'grid' ? 'bg-brand text-black font-black' : 'text-zinc-600 hover:text-zinc-400'}`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all ${viewMode === 'grid' ? 'bg-brand text-white font-black shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                >
                  <LayoutGrid size={12} />
                  <span className="text-[8px] uppercase font-black">Nexus</span>
@@ -787,7 +787,7 @@ export default function App() {
                   sounds.play('click');
                   setViewMode('list');
                 }}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all ${viewMode === 'list' ? 'bg-brand text-black font-black' : 'text-zinc-600 hover:text-zinc-400'}`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all ${viewMode === 'list' ? 'bg-brand text-white font-black shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                >
                  <List size={12} />
                  <span className="text-[8px] uppercase font-black">Stream</span>
@@ -840,9 +840,9 @@ export default function App() {
                       viewMode === 'grid' 
                       ? 'aspect-square flex-col' 
                       : 'w-full h-16 sm:h-20 flex-row'
-                    } bg-zinc-950/40 border border-white/5 rounded-2xl flex items-center justify-center relative overflow-hidden group/card hover:border-brand/40 hover:bg-zinc-900/60 transition-all cursor-default shadow-lg p-3`}
+                    } bg-white border border-slate-200 rounded-2xl flex items-center justify-center relative overflow-hidden group/card hover:border-brand/40 hover:bg-slate-50 transition-all cursor-default shadow-sm p-3`}
                   >
-                    <div className="absolute top-2 left-2 text-[7px] font-black bg-zinc-950/90 text-zinc-600 px-1.5 py-0.5 rounded-full uppercase z-10 border border-white/5 italic">
+                    <div className="absolute top-2 left-2 text-[7px] font-black bg-slate-50 text-slate-400 px-1.5 py-0.5 rounded-full uppercase z-10 border border-slate-100 italic">
                       ID_{String(i + 1).padStart(3, '0')}
                     </div>
                     
@@ -852,26 +852,26 @@ export default function App() {
                           {item.code ? (
                             <SvgPreview code={item.code} />
                           ) : (
-                            <div className="text-[9px] text-zinc-700 font-black animate-pulse uppercase italic">Analyzing...</div>
+                            <div className="text-[9px] text-slate-300 font-black animate-pulse uppercase italic">Analyzing...</div>
                           )}
                           {(item.originalWidth || item.originalHeight) && (
                             <div className="absolute bottom-2 left-0 right-0 px-2 opacity-0 group-hover/card:opacity-100 transition-opacity">
-                              <div className="bg-black/95 backdrop-blur-md rounded-lg py-1 text-[7px] font-mono text-brand border border-white/10 shadow-2xl text-center uppercase tracking-[0.2em]">
+                              <div className="bg-white/95 backdrop-blur-md rounded-lg py-1 text-[7px] font-mono text-brand border border-slate-100 shadow-xl text-center uppercase tracking-[0.2em]">
                                 {Math.round(item.originalWidth || 0)} × {Math.round(item.originalHeight || 0)}
                               </div>
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className="w-full h-full glass-panel rounded-2xl flex items-center justify-center overflow-hidden p-1.5">
+                        <div className="w-full h-full bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden p-1.5">
                            {item.file ? (
                              <img 
                                src={URL.createObjectURL(item.file)} 
-                               className="w-full h-full object-contain opacity-40 group-hover:opacity-100 transition-opacity" 
+                               className="w-full h-full object-contain opacity-60 group-hover:opacity-100 transition-opacity" 
                                onLoad={(e) => URL.revokeObjectURL((e.target as any).src)}
                               />
                            ) : (
-                             <ImageIcon size={20} className="text-zinc-800" />
+                             <ImageIcon size={20} className="text-slate-200" />
                            )}
                         </div>
                       )}
@@ -879,22 +879,22 @@ export default function App() {
 
                     {viewMode === 'list' && (
                       <div className="flex-1 ml-6 flex flex-col justify-center">
-                         <div className="text-[12px] font-black text-white uppercase tracking-wider mb-1 flex items-center gap-3">
+                         <div className="text-[12px] font-black text-slate-900 uppercase tracking-wider mb-1 flex items-center gap-3">
                            {item.name}
-                           <span className="text-[8px] px-2 py-0.5 bg-brand/10 text-brand rounded-full border border-brand/20 italic font-black uppercase tracking-widest">{item.type} SOURCE</span>
+                           <span className="text-[8px] px-2 py-0.5 bg-brand/5 text-brand rounded-full border border-brand/10 italic font-black uppercase tracking-widest">{item.type} SOURCE</span>
                          </div>
-                         <div className="text-[9px] text-slate-500 font-bold flex gap-6 italic">
+                         <div className="text-[9px] text-slate-400 font-bold flex gap-6 italic">
                            {item.originalWidth && item.originalHeight ? (
                              <span className="flex items-center gap-2"><div className="w-1 h-1 bg-brand/40 rounded-full" />SOURCE RES: {Math.round(item.originalWidth)} × {Math.round(item.originalHeight)}</span>
                            ) : (
-                             <span className="text-zinc-700 italic border-l border-zinc-800 pl-3">PENDING_METRICS</span>
+                             <span className="text-slate-200 italic border-l border-slate-100 pl-3">PENDING_METRICS</span>
                            )}
                            <span className="flex items-center gap-2"><div className="w-1 h-1 bg-green-500/40 rounded-full" />RASTER_READY</span>
                          </div>
                       </div>
                     )}
                     
-                    <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover/card:opacity-100 transition-opacity pointer-events-none" />
+                    <div className="absolute inset-0 bg-brand/[0.02] opacity-0 group-hover/card:opacity-100 transition-opacity pointer-events-none" />
                   </motion.div>
                 ))}
                                {visibleAssets.length === 0 && !isProcessing && (
@@ -915,64 +915,64 @@ export default function App() {
           </div>
 
           {/* HUD Controller */}
-          <section className="bg-bg-main/60 backdrop-blur-2xl border-t border-white/5 p-5 relative z-30">
+          <section className="bg-bg-main/60 backdrop-blur-2xl border-t border-slate-200 p-5 relative z-30">
             <div className="max-w-screen-xl mx-auto flex flex-col lg:flex-row items-center gap-6">
               
               <div className="flex-1 flex items-center justify-center lg:justify-start gap-8">
                 {/* Active Parameters HUD */}
                 <div className="flex items-center gap-6">
                   <div className="flex flex-col">
-                    <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-1">Current Matrix</span>
-                    <span className="text-[10px] font-mono text-white/80">{resolution.width} × {resolution.height}</span>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Current Matrix</span>
+                    <span className="text-[10px] font-mono text-slate-900/80">{resolution.width} × {resolution.height}</span>
                   </div>
-                  <div className="w-px h-6 bg-zinc-900" />
+                  <div className="w-px h-6 bg-slate-200" />
                   <div className="flex flex-col">
-                    <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-1">Mass Scale</span>
-                    <span className="text-[10px] font-mono text-white/80">{useTargetSize ? `${targetSize?.toFixed(1)}MB` : 'BYPASS'}</span>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Mass Scale</span>
+                    <span className="text-[10px] font-mono text-slate-900/80">{useTargetSize ? `${targetSize?.toFixed(1)}MB` : 'BYPASS'}</span>
                   </div>
                 </div>
 
                 {/* Central Resize Trigger */}
                 <motion.button 
-                  whileHover={{ scale: 1.05, backgroundColor: 'rgba(6,182,212,0.1)' }}
+                  whileHover={{ scale: 1.05, backgroundColor: 'rgba(37,99,235,0.05)' }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     sounds.play('click');
                     setIsResizeOpen(true);
                   }}
-                  className="px-6 py-2 bg-zinc-900 border border-brand/30 rounded-xl flex items-center gap-2.5 transition-all group shadow-xl"
+                  className="px-6 py-2 bg-slate-50 border border-brand/20 rounded-xl flex items-center gap-2.5 transition-all group shadow-sm"
                 >
                   <Maximize2 size={14} className="text-brand group-hover:rotate-90 transition-transform" />
-                  <span className="text-[9px] font-black uppercase text-white tracking-[0.2em]">Resize Matrix</span>
+                  <span className="text-[9px] font-black uppercase text-slate-900 tracking-[0.2em]">Resize Matrix</span>
                 </motion.button>
               </div>
 
               <div className="flex gap-2 w-full lg:w-auto">
                 <motion.button 
-                  whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.06)' }}
+                  whileHover={{ scale: 1.02, backgroundColor: 'rgba(0,0,0,0.02)' }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleDownload(true)}
                   disabled={isProcessing || visibleAssets.length === 0}
-                  className="flex-1 lg:w-36 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-widest bg-white/5 border border-white/10 text-white disabled:opacity-20 disabled:grayscale"
+                  className="flex-1 lg:w-36 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-widest bg-slate-50 border border-slate-200 text-slate-900 disabled:opacity-20 disabled:grayscale"
                 >
                   <Archive size={14} strokeWidth={2.5} />
                   <span>ZIP BATCH</span>
                 </motion.button>
 
                 <motion.button 
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ scale: 1.02, backgroundColor: '#1d4ed8' }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleDownload(false)}
                   disabled={isProcessing || visibleAssets.length === 0}
                   className={`flex-[2] lg:w-48 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest shrink-0 ${
                     isProcessing || visibleAssets.length === 0
-                    ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed border border-white/5'
-                    : 'bg-brand text-black hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] shadow-lg'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                    : 'bg-brand text-white shadow-lg shadow-brand/20'
                   }`}
                 >
                   {isProcessing ? (
                     <div className="flex items-center gap-2">
-                       <div className="w-2.5 h-2.5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                       <div className="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                        <span>PROCESSING</span>
                     </div>
                   ) : (
@@ -989,16 +989,16 @@ export default function App() {
       </main>
 
       {/* Global Status Footer */}
-      <footer className="h-10 border-t border-white/10 flex items-center justify-between px-8 bg-zinc-950/80 text-[8px] uppercase tracking-[0.3em] font-black text-zinc-600">
+      <footer className="h-10 border-t border-slate-200 flex items-center justify-between px-8 bg-slate-50 text-[8px] uppercase tracking-[0.3em] font-black text-slate-400">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-brand rounded-full animate-pulse shadow-[0_0_5px_rgba(6,182,212,0.5)]" />
+            <span className="w-1.5 h-1.5 bg-brand rounded-full animate-pulse shadow-[0_0_5px_rgba(37,99,235,0.5)]" />
             SYNTH_ENGINE_ACTIVE
           </div>
           <div className="hidden sm:block">LOCAL_LATENCY: 0.04ms</div>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-zinc-800 font-bold hidden lg:inline select-none tracking-widest">AUTHORIZED_TERMINAL_ACCESS_ONLY</span>
+          <span className="text-slate-300 font-bold hidden lg:inline select-none tracking-widest">AUTHORIZED_TERMINAL_ACCESS_ONLY</span>
         </div>
       </footer>
     </motion.div>
