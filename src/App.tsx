@@ -28,7 +28,10 @@ import {
   Archive,
   LogIn,
   LogOut,
-  User as UserIcon
+  User as UserIcon,
+  Zap,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import JSZip from 'jszip';
@@ -95,6 +98,11 @@ export default function App() {
   const [isLocked, setIsLocked] = useState(true);
   const [aspectRatio, setAspectRatio] = useState(1);
   const [user, setUser] = useState<User | null>(null);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+
+  const triggerSound = useCallback((type: Parameters<typeof sounds.play>[0]) => {
+    if (audioEnabled) sounds.play(type);
+  }, [audioEnabled]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -214,7 +222,7 @@ export default function App() {
   const visibleAssets = allAssets.filter(asset => !completedIds.has(asset.id));
 
   const clearAll = useCallback(() => {
-    sounds.play('error');
+    triggerSound('error');
     setRawInput('');
     setUploadedFiles([]);
     setCompletedIds(new Set());
@@ -289,25 +297,28 @@ export default function App() {
     });
 
     setUploadedFiles(prev => [...prev, ...newAssets]);
-    sounds.play('success');
+    triggerSound('success');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleDownload = async (asZip: boolean = false) => {
     if (visibleAssets.length === 0) return;
 
-    sounds.play('click');
+    triggerSound('click');
     setIsProcessing(true);
     setDownloadProgress(0);
     setCompletedIds(new Set());
     setZipBlob(null);
     abortRef.current = false;
+    
+    triggerSound('powerup');
 
     const zip = asZip ? new JSZip() : null;
+    const lastTick = { current: 0 };
 
     try {
       const currentBatch = [...visibleAssets];
-      const concurrencyLimit = 40; // Increased concurrency for turbo speed
+      const concurrencyLimit = 40; 
       
       for (let i = 0; i < currentBatch.length; i += concurrencyLimit) {
         if (abortRef.current) break;
@@ -357,8 +368,13 @@ export default function App() {
           }
         }));
 
-        setDownloadProgress(Math.round(((i + chunk.length) / currentBatch.length) * 100));
-        // Removed artificial delay for 100x speed
+        const nextProgress = Math.round(((i + chunk.length) / currentBatch.length) * 100);
+        setDownloadProgress(nextProgress);
+        
+        // Progress Ticks at 25% increments
+        if (nextProgress >= 25 && lastTick.current < 25) { triggerSound('tick'); lastTick.current = 25; }
+        if (nextProgress >= 50 && lastTick.current < 50) { triggerSound('tick'); lastTick.current = 50; }
+        if (nextProgress >= 75 && lastTick.current < 75) { triggerSound('tick'); lastTick.current = 75; }
       }
 
       if (!abortRef.current) {
@@ -368,7 +384,7 @@ export default function App() {
           saveAs(content, `dr_svg_batch_${Date.now()}.zip`);
         }
         
-        sounds.play('success');
+        triggerSound('chime');
         setShowSuccess(true);
         confetti({
           particleCount: 200,
@@ -396,46 +412,7 @@ export default function App() {
       transition={{ duration: 1 }}
       className="flex flex-col min-h-screen bg-bg-main text-slate-600 font-sans selection:bg-brand/10 selection:text-brand"
     >
-      {/* Global Status HUD */}
-      <AnimatePresence>
-        {isProcessing && (
-          <motion.div 
-            initial={{ y: 50, opacity: 0, x: '-50%' }}
-            animate={{ y: 0, opacity: 1, x: '-50%' }}
-            exit={{ y: 50, opacity: 0, x: '-50%' }}
-            className="fixed bottom-10 left-1/2 -translate-x-1/2 h-14 w-[95%] max-w-md bg-white/90 backdrop-blur-3xl border border-brand/20 rounded-2xl shadow-[0_30px_60px_rgba(37,99,235,0.1),0_0_20px_rgba(37,99,235,0.05)] z-[200] flex items-center px-6 gap-5 overflow-hidden"
-          >
-            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand to-transparent" />
-            
-            <div className="flex flex-col shrink-0 min-w-[60px]">
-               <span className="text-[7px] font-black text-brand uppercase tracking-[0.3em] leading-none mb-1.5 animate-pulse">Processing</span>
-               <span className="text-[12px] text-slate-900 font-mono font-bold leading-none">{downloadProgress}%</span>
-            </div>
-            
-            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden relative border border-slate-200">
-              <motion.div 
-                className="absolute inset-y-0 left-0 bg-brand shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                initial={{ width: 0 }}
-                animate={{ width: `${downloadProgress}%` }}
-                transition={{ duration: 0.1 }}
-              />
-            </div>
 
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                sounds.play('error');
-                abortRef.current = true;
-              }}
-              className="text-red-500/50 hover:text-red-500 text-[9px] font-black uppercase tracking-widest transition-colors flex items-center gap-2 px-3 py-1.5 bg-red-500/5 rounded-lg border border-red-500/10"
-            >
-              <X size={10} strokeWidth={4} />
-              Abort
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Resize Configuration Portal */}
       <AnimatePresence>
@@ -463,7 +440,7 @@ export default function App() {
                   whileHover={{ rotate: 90, scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => {
-                    sounds.play('click');
+                    triggerSound('click');
                     setIsResizeOpen(false);
                   }}
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-slate-400 hover:text-brand transition-colors"
@@ -491,7 +468,7 @@ export default function App() {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => {
-                          sounds.play('click');
+                          triggerSound('click');
                           setIsLocked(!isLocked);
                         }}
                         className={`p-2 rounded-lg transition-colors ${isLocked ? 'text-brand bg-brand/10' : 'text-slate-300 bg-slate-100'}`}
@@ -553,7 +530,7 @@ export default function App() {
                 whileHover={{ scale: 1.02, backgroundColor: '#1d4ed8' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
-                  sounds.play('success');
+                  triggerSound('success');
                   setIsResizeOpen(false);
                 }}
                 className="w-full mt-8 py-4 bg-brand text-white font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all shadow-lg shadow-brand/20"
@@ -603,7 +580,7 @@ export default function App() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => {
-                      sounds.play('success');
+                      triggerSound('success');
                       saveAs(zipBlob, `dr_svg_batch_${Date.now()}.zip`);
                     }}
                     className="w-full py-3 bg-slate-50 border border-slate-200 text-slate-900 font-black uppercase tracking-widest rounded-xl hover:bg-slate-100 transition-all flex items-center justify-center gap-2 text-[10px]"
@@ -616,7 +593,7 @@ export default function App() {
                   whileHover={{ scale: 1.02, backgroundColor: '#1d4ed8' }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
-                    sounds.play('click');
+                    triggerSound('click');
                     setShowSuccess(false);
                     setRawInput('');
                     setUploadedFiles([]);
@@ -639,7 +616,7 @@ export default function App() {
           <motion.div 
             whileHover={{ rotate: 15, scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => sounds.play('hover')}
+            onClick={() => triggerSound('hover')}
             className="w-8 h-8 bg-brand rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.2)] shrink-0 cursor-pointer"
           >
             <Stethoscope size={18} className="text-white" strokeWidth={2.5} />
@@ -650,8 +627,17 @@ export default function App() {
           </div>
         </div>
         
-        <div className="flex items-center gap-4 sm:gap-6">
-          {user ? (
+          <div className="flex items-center gap-2 sm:gap-4">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setAudioEnabled(!audioEnabled)}
+              className={`p-2 rounded-full transition-all ${audioEnabled ? 'text-brand bg-brand/5' : 'text-slate-300 bg-slate-50'}`}
+            >
+              {audioEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+            </motion.button>
+
+            {user ? (
             <div className="flex items-center gap-3 sm:gap-4 pl-4 border-l border-slate-200">
               <div className="flex flex-col items-end leading-none hidden sm:flex">
                 <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{user.displayName}</span>
@@ -661,7 +647,7 @@ export default function App() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
-                  sounds.play('click');
+                  triggerSound('click');
                   logout();
                 }}
                 className="w-8 h-8 rounded-full border border-slate-200 overflow-hidden relative group cursor-pointer"
@@ -677,7 +663,7 @@ export default function App() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => {
-                sounds.play('click');
+                triggerSound('click');
                 signInWithGoogle();
               }}
               className="px-4 py-1.5 bg-brand text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center gap-2"
@@ -724,7 +710,7 @@ export default function App() {
                 whileHover={{ scale: 1.02, borderColor: 'rgba(37,99,235,0.4)', backgroundColor: 'rgba(37,99,235,0.02)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
-                  sounds.play('click');
+                  triggerSound('click');
                   fileInputRef.current?.click();
                 }}
                 className="w-full py-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center gap-2 group relative overflow-hidden transition-all shadow-inner"
@@ -772,7 +758,7 @@ export default function App() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
-                  sounds.play('click');
+                  triggerSound('click');
                   setViewMode('grid');
                 }}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all ${viewMode === 'grid' ? 'bg-brand text-white font-black shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
@@ -784,7 +770,7 @@ export default function App() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
-                  sounds.play('click');
+                  triggerSound('click');
                   setViewMode('list');
                 }}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all ${viewMode === 'list' ? 'bg-brand text-white font-black shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
@@ -795,7 +781,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-64">
+          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-32 sm:pb-64">
             <div className="flex items-center justify-between mb-4 px-1">
                <div className="flex items-center gap-2">
                  <span className="text-[8px] font-black text-zinc-800 uppercase tracking-[0.3em]">WORK_AREA_PROTOCOL</span>
@@ -915,20 +901,20 @@ export default function App() {
           </div>
 
           {/* HUD Controller */}
-          <section className="bg-bg-main/60 backdrop-blur-2xl border-t border-slate-200 p-5 relative z-30">
-            <div className="max-w-screen-xl mx-auto flex flex-col lg:flex-row items-center gap-6">
+          <section className="bg-bg-main/60 backdrop-blur-2xl border-t border-slate-200 p-3 sm:p-5 relative z-30">
+            <div className="max-w-screen-xl mx-auto flex flex-col lg:flex-row items-center gap-4 sm:gap-6">
               
-              <div className="flex-1 flex items-center justify-center lg:justify-start gap-8">
+              <div className="flex-1 flex items-center justify-center lg:justify-start gap-4 sm:gap-8 w-full">
                 {/* Active Parameters HUD */}
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-4 sm:gap-6">
                   <div className="flex flex-col">
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Current Matrix</span>
-                    <span className="text-[10px] font-mono text-slate-900/80">{resolution.width} × {resolution.height}</span>
+                    <span className="text-[7px] sm:text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Current Matrix</span>
+                    <span className="text-[9px] sm:text-[10px] font-mono text-slate-900/80">{resolution.width} × {resolution.height}</span>
                   </div>
-                  <div className="w-px h-6 bg-slate-200" />
+                  <div className="w-px h-5 sm:h-6 bg-slate-200" />
                   <div className="flex flex-col">
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Mass Scale</span>
-                    <span className="text-[10px] font-mono text-slate-900/80">{useTargetSize ? `${targetSize?.toFixed(1)}MB` : 'BYPASS'}</span>
+                    <span className="text-[7px] sm:text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Mass Scale</span>
+                    <span className="text-[9px] sm:text-[10px] font-mono text-slate-900/80">{useTargetSize ? `${targetSize?.toFixed(1)}MB` : 'BYPASS'}</span>
                   </div>
                 </div>
 
@@ -937,51 +923,118 @@ export default function App() {
                   whileHover={{ scale: 1.05, backgroundColor: 'rgba(37,99,235,0.05)' }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
-                    sounds.play('click');
+                    triggerSound('click');
                     setIsResizeOpen(true);
                   }}
-                  className="px-6 py-2 bg-slate-50 border border-brand/20 rounded-xl flex items-center gap-2.5 transition-all group shadow-sm"
+                  disabled={isProcessing}
+                  className="px-4 sm:px-6 py-1.5 sm:py-2 bg-slate-50 border border-brand/20 rounded-xl flex items-center gap-2 transition-all group shadow-sm disabled:opacity-30"
                 >
-                  <Maximize2 size={14} className="text-brand group-hover:rotate-90 transition-transform" />
-                  <span className="text-[9px] font-black uppercase text-slate-900 tracking-[0.2em]">Resize Matrix</span>
+                  <Maximize2 size={12} className="text-brand group-hover:rotate-90 transition-transform sm:size-14" />
+                  <span className="text-[8px] sm:text-[9px] font-black uppercase text-slate-900 tracking-[0.1em] sm:tracking-[0.2em]">Resize Matrix</span>
                 </motion.button>
               </div>
 
-              <div className="flex gap-2 w-full lg:w-auto">
-                <motion.button 
-                  whileHover={{ scale: 1.02, backgroundColor: 'rgba(0,0,0,0.02)' }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleDownload(true)}
-                  disabled={isProcessing || visibleAssets.length === 0}
-                  className="flex-1 lg:w-36 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-widest bg-slate-50 border border-slate-200 text-slate-900 disabled:opacity-20 disabled:grayscale"
-                >
-                  <Archive size={14} strokeWidth={2.5} />
-                  <span>ZIP BATCH</span>
-                </motion.button>
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 w-full lg:w-auto">
+                {isProcessing ? (
+                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full bg-slate-100/50 border border-slate-200 p-2 sm:p-3 rounded-2xl relative overflow-hidden">
+                    {/* Progress Fill Background */}
+                    <div className="absolute inset-0 bg-slate-200/50" />
+                    
+                    <div className="relative flex items-center gap-2 sm:gap-3 w-full">
+                       <motion.button 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          triggerSound('error');
+                          abortRef.current = true;
+                        }}
+                        className="h-8 sm:h-10 px-4 rounded-xl bg-slate-900 text-slate-100 transition-all flex items-center justify-center gap-2 group shrink-0 shadow-xl border border-slate-700"
+                       >
+                         <X size={14} strokeWidth={3} className="text-red-400 group-hover:rotate-90 transition-transform" />
+                         <span className="text-[9px] font-black uppercase tracking-widest hidden sm:inline">Abort Operation</span>
+                         <span className="text-[9px] font-black uppercase tracking-widest sm:hidden">Abort</span>
+                       </motion.button>
 
-                <motion.button 
-                  whileHover={{ scale: 1.02, backgroundColor: '#1d4ed8' }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleDownload(false)}
-                  disabled={isProcessing || visibleAssets.length === 0}
-                  className={`flex-[2] lg:w-48 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest shrink-0 ${
-                    isProcessing || visibleAssets.length === 0
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                    : 'bg-brand text-white shadow-lg shadow-brand/20'
-                  }`}
-                >
-                  {isProcessing ? (
-                    <div className="flex items-center gap-2">
-                       <div className="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                       <span>PROCESSING</span>
+                       {/* Charging Battery Bar Container */}
+                       <div className="flex-1 h-8 sm:h-10 bg-slate-200/40 rounded-xl relative overflow-hidden border border-slate-300/50 flex items-center px-4">
+                          {/* Liquid Fill */}
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${downloadProgress}%` }}
+                            className={`absolute inset-y-0 left-0 transition-colors duration-500 ${downloadProgress === 100 ? 'bg-green-500 shadow-[0_0_20px_rgba(34,197,94,0.4)]' : 'bg-brand shadow-[0_0_30px_rgba(37,99,235,0.6)]'}`}
+                          >
+                            {/* Energy Wave Effect */}
+                            <motion.div 
+                              animate={{ x: ['-200%', '200%'] }}
+                              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-25deg]"
+                            />
+                            {/* Tip Shimmer */}
+                            <div className="absolute right-0 top-0 bottom-0 w-3 bg-white/30 blur-[4px]" />
+                          </motion.div>
+
+                          {/* Bolt Icon & Percentage */}
+                          <div className="relative z-10 flex items-center justify-between w-full">
+                            <div className="flex items-center gap-2">
+                              <motion.div
+                                animate={{ 
+                                  scale: downloadProgress === 100 ? 1 : [1, 1.2, 1],
+                                  filter: downloadProgress === 100 ? 'none' : ['drop-shadow(0 0 0px #fff)', 'drop-shadow(0 0 10px #60a5fa)', 'drop-shadow(0 0 0px #fff)']
+                                }}
+                                transition={{ duration: 1, repeat: Infinity }}
+                                className="text-white flex items-center justify-center"
+                              >
+                                {downloadProgress === 100 ? <CheckCircle2 size={16} strokeWidth={3} /> : <Zap size={14} fill="currentColor" />}
+                              </motion.div>
+                              <span className="text-[10px] font-black text-white uppercase tracking-widest drop-shadow-md">
+                                {downloadProgress === 100 ? 'SYNTH_COMPLETE' : 'SYNTHESIZING_BLOCKS'}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-1">
+                              <motion.span 
+                                key={downloadProgress}
+                                initial={{ y: 10, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                className="text-base font-mono font-black text-white drop-shadow-md"
+                              >
+                                {downloadProgress}
+                              </motion.span>
+                              <span className="text-[10px] font-bold text-white/80">%</span>
+                            </div>
+                          </div>
+                       </div>
                     </div>
-                  ) : (
-                    <>
+                  </div>
+                ) : (
+                  <>
+                    <motion.button 
+                      whileHover={{ scale: 1.02, backgroundColor: 'rgba(0,0,0,0.02)' }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleDownload(true)}
+                      disabled={isProcessing || visibleAssets.length === 0}
+                      className="flex-1 lg:w-36 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-widest bg-slate-50 border border-slate-200 text-slate-900 disabled:opacity-20 disabled:grayscale"
+                    >
+                      <Archive size={14} strokeWidth={2.5} />
+                      <span>ZIP BATCH</span>
+                    </motion.button>
+
+                    <motion.button 
+                      whileHover={{ scale: 1.02, backgroundColor: '#1d4ed8' }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleDownload(false)}
+                      disabled={isProcessing || visibleAssets.length === 0}
+                      className={`flex-[2] lg:w-48 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest shrink-0 ${
+                        isProcessing || visibleAssets.length === 0
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                        : 'bg-brand text-white shadow-lg shadow-brand/20'
+                      }`}
+                    >
                       <Download size={14} strokeWidth={2.5} />
                       <span>EXPORT UNITS</span>
-                    </>
-                  )}
-                </motion.button>
+                    </motion.button>
+                  </>
+                )}
               </div>
             </div>
           </section>

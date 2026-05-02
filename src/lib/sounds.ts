@@ -12,23 +12,27 @@ class SoundEngine {
     return this.ctx;
   }
 
-  play(type: 'click' | 'success' | 'error' | 'process' | 'hover') {
+  play(type: 'click' | 'success' | 'error' | 'process' | 'hover' | 'powerup' | 'tick' | 'chime') {
     const ctx = this.getCtx();
     const now = ctx.currentTime;
 
-    const playTone = (freq: number, duration: number, type: OscillatorType = 'sine', volume = 0.05) => {
+    const playTone = (freq: number, duration: number, type: OscillatorType = 'sine', volume = 0.05, rampType: 'exp' | 'linear' = 'exp') => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       const filter = ctx.createBiquadFilter();
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1500, now);
+      filter.frequency.setValueAtTime(2000, now);
       
       osc.type = type;
       osc.frequency.setValueAtTime(freq, now);
       
       gain.gain.setValueAtTime(volume, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      if (rampType === 'exp') {
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      } else {
+        gain.gain.linearRampToValueAtTime(0, now + duration);
+      }
       
       osc.connect(filter);
       filter.connect(gain);
@@ -55,6 +59,20 @@ class SoundEngine {
         break;
       case 'hover':
         playTone(1200, 0.04, 'sine', 0.005);
+        break;
+      case 'powerup':
+        // Ascending hum
+        for (let i = 0; i < 10; i++) {
+          setTimeout(() => playTone(100 + (i * 20), 0.3, 'sine', 0.02 - (i * 0.001)), i * 30);
+        }
+        break;
+      case 'tick':
+        playTone(2800, 0.02, 'sine', 0.03);
+        break;
+      case 'chime':
+        playTone(880, 0.5, 'sine', 0.05);
+        setTimeout(() => playTone(1108, 0.4, 'sine', 0.04), 100);
+        setTimeout(() => playTone(1318, 0.6, 'sine', 0.03), 200);
         break;
     }
   }
