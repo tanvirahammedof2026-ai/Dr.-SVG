@@ -331,17 +331,17 @@ export default function App() {
           await Promise.race(pool);
         }
 
-        const task = (async (retryCount = 0) => {
+        const processUnit = async (unit: AssetSlot, retryCount = 0): Promise<void> => {
           let blob: Blob | null = null;
           try {
             const formData = new FormData();
             formData.append('width', resolution.width.toString());
             formData.append('height', resolution.height.toString());
             
-            if (item.type === 'svg' && item.code) {
-              formData.append('file', new Blob([item.code], { type: 'image/svg+xml' }), `${item.name}.svg`);
-            } else if (item.file) {
-              formData.append('file', item.file, item.file.name);
+            if (unit.type === 'svg' && unit.code) {
+              formData.append('file', new Blob([unit.code], { type: 'image/svg+xml' }), `${unit.name}.svg`);
+            } else if (unit.file) {
+              formData.append('file', unit.file, unit.file.name);
             }
 
             const response = await fetch('/api/synthesize-unit', { 
@@ -363,30 +363,30 @@ export default function App() {
             }
           } catch (err) {
             if (retryCount < maxRetries && !abortRef.current) {
-              console.warn(`Retrying synthesis for [${item.name}] (${retryCount + 1}/${maxRetries})...`);
-              return task(retryCount + 1);
+              console.warn(`Retrying synthesis for [${unit.name}] (${retryCount + 1}/${maxRetries})...`);
+              return processUnit(unit, retryCount + 1);
             }
 
-            console.warn(`Synthetix Cloud skipped [${item.name}] after retries, using local engine...`);
+            console.warn(`Synthetix Cloud skipped [${unit.name}] after retries, using local engine...`);
             try {
-              if (item.type === 'svg' && item.code) {
-                blob = await svgToJpg(item.code, resolution.width, resolution.height, useTargetSize ? (targetSize || 4) : undefined);
-              } else if (item.file) {
-                blob = await imageToJpg(item.file, resolution.width, resolution.height, useTargetSize ? (targetSize || 4) : undefined);
+              if (unit.type === 'svg' && unit.code) {
+                blob = await svgToJpg(unit.code, resolution.width, resolution.height, useTargetSize ? (targetSize || 4) : undefined);
+              } else if (unit.file) {
+                blob = await imageToJpg(unit.file, resolution.width, resolution.height, useTargetSize ? (targetSize || 4) : undefined);
               }
             } catch (localErr) {
-              console.error(`Fatal processing error for [${item.name}]:`, localErr);
+              console.error(`Fatal processing error for [${unit.name}]:`, localErr);
             }
           }
 
           if (blob) {
             if (zip) {
-              zip.file(`${item.name}.jpg`, blob);
+              zip.file(`${unit.name}.jpg`, blob);
             } else {
               const url = URL.createObjectURL(blob);
               const link = document.createElement('a');
               link.href = url;
-              link.download = `${item.name}.jpg`;
+              link.download = `${unit.name}.jpg`;
               link.click();
               setTimeout(() => URL.revokeObjectURL(url), 10000);
             }
@@ -394,14 +394,15 @@ export default function App() {
             processedCount++;
             const nextProgress = Math.round((processedCount / totalCount) * 100);
             setDownloadProgress(nextProgress);
-            setCompletedIds(prev => new Set(prev).add(item.id));
+            setCompletedIds(prev => new Set(prev).add(unit.id));
             
             if (nextProgress % 25 === 0 && nextProgress > lastTick.current) {
               lastTick.current = nextProgress;
             }
           }
-        })(0).finally(() => pool.delete(task));
+        };
 
+        const task: Promise<void> = processUnit(item).finally(() => pool.delete(task));
         pool.add(task);
       }
 
