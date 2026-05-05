@@ -15,11 +15,11 @@ async function startServer() {
   // Synthetix Matrix Configuration
   const upload = multer({ 
     storage: multer.memoryStorage(),
-    limits: { fileSize: 50 * 1024 * 1024 } // 50MB per unit limit for stability
+    limits: { fileSize: 500 * 1024 * 1024 } // 500MB per unit limit as requested
   });
 
-  app.use(express.json({ limit: '100mb' }));
-  app.use(express.urlencoded({ limit: '100mb', extended: true }));
+  app.use(express.json({ limit: '1gb' }));
+  app.use(express.urlencoded({ limit: '1gb', extended: true }));
 
   // API: Health Check
   app.get('/api/health', (req, res) => {

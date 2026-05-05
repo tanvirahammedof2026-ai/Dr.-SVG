@@ -317,11 +317,11 @@ export default function App() {
       const lastTick = { current: 0 };
       
       const currentBatch = [...visibleAssets];
-      const concurrencyLimit = 15; // Aggressive parallelization for 100x speed feel
+      const concurrencyLimit = 8; // Reduced for better stability in 100+ batches
+      const maxRetries = 2;
       
       // Use a pool of workers pattern for better resource management than simple chunking
       const pool = new Set();
-      const results: Blob[] = [];
       
       for (const item of currentBatch) {
         if (abortRef.current) break;
@@ -331,7 +331,7 @@ export default function App() {
           await Promise.race(pool);
         }
 
-        const task = (async () => {
+        const task = (async (retryCount = 0) => {
           let blob: Blob | null = null;
           try {
             const formData = new FormData();
@@ -344,7 +344,12 @@ export default function App() {
               formData.append('file', item.file, item.file.name);
             }
 
-            const response = await fetch('/api/synthesize-unit', { method: 'POST', body: formData });
+            const response = await fetch('/api/synthesize-unit', { 
+              method: 'POST', 
+              body: formData,
+              signal: AbortSignal.timeout(60000) // 60s timeout for large transforms
+            });
+
             if (response.ok) {
               blob = await response.blob();
               if (useTargetSize && targetSize && blob) {
@@ -354,14 +359,23 @@ export default function App() {
                 }
               }
             } else {
-              throw new Error('API Reject');
+              throw new Error(`API Reflected: ${response.status}`);
             }
           } catch (err) {
-            console.warn(`Synthetix Cloud missed [${item.name}], using local node...`);
-            if (item.type === 'svg' && item.code) {
-              blob = await svgToJpg(item.code, resolution.width, resolution.height, useTargetSize ? (targetSize || 4) : undefined);
-            } else if (item.file) {
-              blob = await imageToJpg(item.file, resolution.width, resolution.height, useTargetSize ? (targetSize || 4) : undefined);
+            if (retryCount < maxRetries && !abortRef.current) {
+              console.warn(`Retrying synthesis for [${item.name}] (${retryCount + 1}/${maxRetries})...`);
+              return task(retryCount + 1);
+            }
+
+            console.warn(`Synthetix Cloud skipped [${item.name}] after retries, using local engine...`);
+            try {
+              if (item.type === 'svg' && item.code) {
+                blob = await svgToJpg(item.code, resolution.width, resolution.height, useTargetSize ? (targetSize || 4) : undefined);
+              } else if (item.file) {
+                blob = await imageToJpg(item.file, resolution.width, resolution.height, useTargetSize ? (targetSize || 4) : undefined);
+              }
+            } catch (localErr) {
+              console.error(`Fatal processing error for [${item.name}]:`, localErr);
             }
           }
 
@@ -386,7 +400,7 @@ export default function App() {
               lastTick.current = nextProgress;
             }
           }
-        })().finally(() => pool.delete(task));
+        })(0).finally(() => pool.delete(task));
 
         pool.add(task);
       }
